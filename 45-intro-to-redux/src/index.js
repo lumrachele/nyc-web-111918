@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import logo from './logo.svg';
 import './App.css';
+import Redux from 'redux'
+import {createStore} from 'redux'
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
+      <Header />
         <Counter />
       </div>
     );
@@ -16,29 +18,58 @@ class App extends Component {
 }
 
 class Header extends Component {
+  renderDescription = () => {
+    const remainder = store.getState().count % 5;
+    const upToNext = 5 - remainder;
+    return `The current count is less than ${store.getState().count + upToNext}`;
+  }
+
   render() {
-    return (
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1 className="App-title">Welcome to React</h1>
-      </header>
-    );
+  return (
+    <header className="App-header">
+      <img src={logo} className="App-logo" alt="logo" />
+      <h1 className="App-title">{this.renderDescription()}</h1>
+
+
+    </header>
+  );
+}
+}
+
+
+const reducer = (state={count: 0}, action) =>{
+  switch(action.type){
+    case 'INCREMENT':
+      return {count: state.count+action.amount}
+    case 'DECREMENT':
+      return {count: state.count-1}
+    case 'ADD 2':
+      return {count: state.count+action.amount}
+    case 'ADD 5':
+      return {count: state.count+action.amount}
+    default:
+      return state
   }
 }
 
-class Counter extends Component {
-  state = { count: 0 };
+const store = createStore(reducer)
 
-  increment = () => {
-    this.setState(prevState => ({ count: prevState.count + 1 }));
+class Counter extends Component {
+
+  increment = (a) => {
+                                    //could also just write "amount:amount"
+                                    //same as "amount"
+    store.dispatch({type: 'INCREMENT', amount: a})
+    this.setState({})
   };
 
   decrement = () => {
-    this.setState(prevState => ({ count: prevState.count - 1 }));
+    store.dispatch({type: 'DECREMENT'})
+    this.setState({})
   };
 
   renderDescription = () => {
-    const count = this.state.count
+    const count = this.getState().count
     const remainder = count % 5;
     const upToNext = 5 - remainder;
     return `The current count is less than ${count + upToNext}`;
@@ -47,10 +78,11 @@ class Counter extends Component {
   render() {
     return (
       <div className="Counter">
-        <h1>{this.state.count}</h1>
+        <h1>{store.getState().count}</h1>
         <button onClick={this.decrement}> - </button>
-        <button onClick={this.increment}> + </button>
-        <h3>{this.renderDescription()}</h3>
+        <button onClick={()=>{this.increment(1)}}> + </button>
+        <button onClick={()=>{this.increment(2)}}> +2 </button>
+        <button onClick={()=>{this.increment(5)}}> +5 </button>
       </div>
     );
   }
